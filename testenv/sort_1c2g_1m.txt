@@ -1,0 +1,28 @@
+SORT cfg rows=1000000 reps=3 seed=12328294408795883044
+SORT load rows=1000000 load_ms=2336.1 rows_per_s=428072
+SORT mem after_load         rss_mb=209 peak_mb=209 vsz_mb=227
+SORT sort_pk_full       reps=3 avg_ms=57.09     min_ms=48.75     max_ms=66.16     rows=1000000   peak_mb=286
+SORT mem sort_pk_full       rss_mb=217 peak_mb=286 vsz_mb=235
+SORT sort_int_full      reps=3 avg_ms=531.93    min_ms=503.85    max_ms=582.95    rows=1000000   peak_mb=293
+SORT mem sort_int_full      rss_mb=224 peak_mb=293 vsz_mb=243
+SORT sort_int_limit100  reps=3 avg_ms=11.90     min_ms=9.94      max_ms=14.83     rows=100       peak_mb=293
+SORT mem sort_int_limit100  rss_mb=224 peak_mb=293 vsz_mb=243
+SORT sort_str_full      reps=3 avg_ms=789.92    min_ms=750.17    max_ms=866.32    rows=1000000   peak_mb=324
+SORT mem sort_str_full      rss_mb=224 peak_mb=324 vsz_mb=243
+SORT sort_double_full   reps=3 avg_ms=463.08    min_ms=454.53    max_ms=474.90    rows=1000000   peak_mb=324
+SORT mem sort_double_full   rss_mb=224 peak_mb=324 vsz_mb=243
+SORT sort_multi_lim1k   reps=3 avg_ms=14.22     min_ms=12.30     max_ms=16.40     rows=1000      peak_mb=324
+SORT mem sort_multi_lim1k   rss_mb=224 peak_mb=324 vsz_mb=243
+SORT group_by_a_lim50   reps=3 avg_ms=474.65    min_ms=458.60    max_ms=485.04    rows=50        peak_mb=324
+SORT mem group_by_a_lim50   rss_mb=224 peak_mb=324 vsz_mb=243
+SORT distinct_c         reps=3 avg_ms=63.59     min_ms=58.63     max_ms=67.34     rows=512       peak_mb=324
+SORT mem distinct_c         rss_mb=234 peak_mb=324 vsz_mb=252
+SORT scan_id_nosort     reps=3 avg_ms=19.96     min_ms=19.23     max_ms=20.53     rows=1000000   peak_mb=324
+SORT mem scan_id_nosort     rss_mb=224 peak_mb=324 vsz_mb=243
+SORT flush_ms=137.0 peak_rss_mb=324
+SORT reopen_ms=150 count=1000000 OK
+SORT DONE
+
+real	0m10.256s
+user	0m9.382s
+sys	0m0.653s

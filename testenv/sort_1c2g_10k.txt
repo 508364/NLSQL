@@ -1,0 +1,24 @@
+SORT cfg rows=10000 reps=5 seed=578915827115970436
+SORT load rows=10000 load_ms=21.1 rows_per_s=472820
+SORT mem after_load         rss_mb=4 peak_mb=4 vsz_mb=21
+SORT sort_pk_full       reps=5 avg_ms=0.44      min_ms=0.36      max_ms=0.58      rows=10000     peak_mb=4
+SORT mem sort_pk_full       rss_mb=4 peak_mb=4 vsz_mb=22
+SORT sort_int_full      reps=5 avg_ms=2.23      min_ms=2.20      max_ms=2.27      rows=10000     peak_mb=4
+SORT mem sort_int_full      rss_mb=4 peak_mb=4 vsz_mb=22
+SORT sort_int_limit100  reps=5 avg_ms=0.15      min_ms=0.14      max_ms=0.19      rows=100       peak_mb=4
+SORT mem sort_int_limit100  rss_mb=4 peak_mb=4 vsz_mb=22
+SORT sort_str_full      reps=5 avg_ms=3.92      min_ms=3.87      max_ms=3.96      rows=10000     peak_mb=5
+SORT mem sort_str_full      rss_mb=4 peak_mb=5 vsz_mb=22
+SORT sort_double_full   reps=5 avg_ms=2.45      min_ms=2.39      max_ms=2.56      rows=10000     peak_mb=5
+SORT mem sort_double_full   rss_mb=4 peak_mb=5 vsz_mb=22
+SORT sort_multi_lim1k   reps=5 avg_ms=0.80      min_ms=0.79      max_ms=0.82      rows=1000      peak_mb=5
+SORT mem sort_multi_lim1k   rss_mb=4 peak_mb=5 vsz_mb=22
+SORT group_by_a_lim50   reps=5 avg_ms=2.57      min_ms=2.27      max_ms=2.86      rows=50        peak_mb=5
+SORT mem group_by_a_lim50   rss_mb=4 peak_mb=5 vsz_mb=22
+SORT distinct_c         reps=5 avg_ms=0.74      min_ms=0.70      max_ms=0.82      rows=512       peak_mb=5
+SORT mem distinct_c         rss_mb=4 peak_mb=5 vsz_mb=22
+SORT scan_id_nosort     reps=5 avg_ms=0.11      min_ms=0.09      max_ms=0.17      rows=10000     peak_mb=5
+SORT mem scan_id_nosort     rss_mb=4 peak_mb=5 vsz_mb=22
+SORT flush_ms=3.5 peak_rss_mb=5
+SORT reopen_ms=2 count=10000 OK
+SORT DONE

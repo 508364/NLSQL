@@ -1,0 +1,10 @@
+CEMB cfg rows=50000 dur_per_level=2s
+CEMB mem after_load threads=3 vmsize_mb=310 rss_mb=12
+CEMB thr=1   ok=1 n=1204656   wall_ms=2000.1  qps=602307   avg_us=1.54    per_thr_qps=602307   threads=3 vmsize_mb=310 rss_mb=12
+CEMB thr=2   ok=2 n=1219053   wall_ms=2000.1  qps=609492   avg_us=3.03    per_thr_qps=304746   threads=3 vmsize_mb=310 rss_mb=12
+CEMB thr=4   ok=4 n=1241702   wall_ms=2012.2  qps=617086   avg_us=5.91    per_thr_qps=154271   threads=3 vmsize_mb=382 rss_mb=12
+CEMB thr=8   ok=8 n=1245912   wall_ms=2020.0  qps=616791   avg_us=11.95   per_thr_qps=77099    threads=3 vmsize_mb=638 rss_mb=13
+CEMB thr=16  ok=16 n=1258603   wall_ms=2032.1  qps=619357   avg_us=24.36   per_thr_qps=38710    threads=3 vmsize_mb=1150 rss_mb=13
+CEMB thr=32  ok=32 n=1237929   wall_ms=2008.7  qps=616284   avg_us=50.59   per_thr_qps=19259    threads=3 vmsize_mb=1534 rss_mb=13
+CEMB thr=64  ok=64 n=1242024   wall_ms=2020.1  qps=614844   avg_us=89.20   per_thr_qps=9607     threads=3 vmsize_mb=1534 rss_mb=13
+CEMB DONE

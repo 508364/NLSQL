@@ -1,0 +1,30 @@
+QLMAX cfg rows=200000 workers=1 seed=11400714819323198485
+QLMAX load rows=200000 load_ms=454.7 rows_per_s=439865
+QLMAX mem after_load       rss_mb=44 peak_mb=44 vsz_mb=62
+QLMAX warmup             n=20000     wall_ms=33.2      avg_us=1.57    p50=1.53    p95=1.87     p99=2.13     max_us=13.81     qps=602357
+QLMAX pk_point_star      n=2975330   wall_ms=5000.0    avg_us=1.55    p50=1.41    p95=1.68     p99=1.91     max_us=406.41    qps=595066
+QLMAX cpu pk_point_star cpu_s=4.97 wall_s=5.00 cores=0.99
+QLMAX pk_point_3col      n=1618481   wall_ms=3000.0    avg_us=1.72    p50=1.62    p95=2.28     p99=2.86     max_us=645.58    qps=539491
+QLMAX pk_miss            n=2738099   wall_ms=3000.0    avg_us=0.98    p50=0.92    p95=1.18     p99=1.45     max_us=629.97    qps=912699
+QLMAX mem after_pk         rss_mb=46 peak_mb=46 vsz_mb=64
+QLMAX count_star         n=200       wall_ms=39.4      avg_us=197.03  p50=202.05  p95=223.97   p99=257.45   max_us=1060.35   qps=5070
+QLMAX count_star rows_scan_per_s=1014000816 rows_total=40000000
+QLMAX scan_full_3col     n=20        wall_ms=219.7     avg_us=8402.51 p50=7922.57 p95=11696.41 p99=11696.41 max_us=11696.41  qps=91
+QLMAX scan_full_3col rows_out_per_s=18203481
+QLMAX mem after_scan_full  rss_mb=46 peak_mb=66 vsz_mb=65
+QLMAX stability begin dur_s=20 window_s=5
+QLMAX stab win=0 qps=633064 rss_mb=46
+QLMAX stab win=1 qps=658504 rss_mb=46
+QLMAX stab win=2 qps=630198 rss_mb=46
+QLMAX stab win=3 qps=648561 rss_mb=46
+QLMAX stab total_qps=642566 total_n=12851641
+QLMAX mem after_stability  rss_mb=46 peak_mb=66 vsz_mb=65
+QLMAX conc_1thr_total    n=1668741   wall_ms=3000.3    avg_us=1.66    p50=1.60    p95=2.36     p99=2.72     max_us=206.47    qps=556200
+QLMAX mem after_conc       rss_mb=46 peak_mb=66 vsz_mb=137
+QLMAX conc_2thr_total    n=1661852   wall_ms=3003.0    avg_us=3.36    p50=1.56    p95=1.99     p99=2.66     max_us=8034.45   qps=553405
+QLMAX mem after_conc       rss_mb=46 peak_mb=66 vsz_mb=209
+QLMAX conc_4thr_total    n=1674785   wall_ms=3000.4    avg_us=6.70    p50=1.57    p95=1.92     p99=2.41     max_us=20021.50  qps=558178
+QLMAX mem after_conc       rss_mb=47 peak_mb=66 vsz_mb=353
+QLMAX flush_ms=36.7 peak_rss_mb=66
+QLMAX reopen_ms=31 count=200000 OK
+QLMAX DONE

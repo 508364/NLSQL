@@ -1,0 +1,2 @@
+READ_OPS=42001 QPS=4095 ERRS=0 details=[('done', 2, 14001, 0, None), ('done', 0, 13945, 0, None), ('done', 1, 14055, 0, None)]
+WINDOW=10.3s samples(rssKB cpu_ticks)=[]

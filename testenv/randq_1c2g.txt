@@ -1,0 +1,29 @@
+RANDQ cfg rows_per_table=50000 dbs=4 tables_per_db=2 workers=1 seed=88172645463325252
+RANDQ load rows_total=400000 load_ms=906.5 rows_per_s=441235
+RANDQ mem after_load     rss_mb=86 peak_mb=86 vsz_mb=105
+RANDQ pk_point       n=50000  total_ms=77.6      avg_us=1.6      p50=1.5     p95=2.0      p99=2.5      max_us=57.4      qps=644473
+RANDQ mem pk_point       rss_mb=87 peak_mb=87 vsz_mb=106
+RANDQ scan_eq        n=1000   total_ms=944.6     avg_us=944.6    p50=926.7   p95=1015.4   p99=1138.0   max_us=5243.6    qps=1059
+RANDQ mem scan_eq        rss_mb=87 peak_mb=87 vsz_mb=106
+RANDQ range_order    n=2000   total_ms=4790.6    avg_us=2395.3   p50=2333.5  p95=2486.7   p99=3090.5   max_us=14681.4   qps=417
+RANDQ mem range_order    rss_mb=87 peak_mb=87 vsz_mb=106
+RANDQ like_prefix    n=1000   total_ms=2116.2    avg_us=2116.2   p50=2066.7  p95=2267.4   p99=3107.4   max_us=8229.8    qps=473
+RANDQ mem like_prefix    rss_mb=87 peak_mb=87 vsz_mb=106
+RANDQ agg_count      n=500    total_ms=561.5     avg_us=1123.1   p50=1123.2  p95=1255.8   p99=1423.9   max_us=1571.3    qps=890
+RANDQ mem agg_count      rss_mb=88 peak_mb=88 vsz_mb=106
+RANDQ agg_sum        n=500    total_ms=698.5     avg_us=1396.9   p50=1460.4  p95=1609.9   p99=1800.1   max_us=1960.3    qps=716
+RANDQ mem agg_sum        rss_mb=88 peak_mb=88 vsz_mb=106
+RANDQ group_by       n=200    total_ms=3752.1    avg_us=18760.7  p50=18453.1 p95=19670.4  p99=33337.1  max_us=35979.7   qps=53
+RANDQ mem group_by       rss_mb=87 peak_mb=89 vsz_mb=106
+RANDQ order_by       n=200    total_ms=113.1     avg_us=565.5    p50=555.7   p95=659.9    p99=723.5    max_us=750.0     qps=1768
+RANDQ mem order_by       rss_mb=87 peak_mb=89 vsz_mb=106
+RANDQ db_switch      n=5000   total_ms=207.3     avg_us=41.5     p50=52.9    p95=58.7     p99=65.4     max_us=569.4     qps=24117
+RANDQ mem db_switch      rss_mb=87 peak_mb=89 vsz_mb=106
+RANDQ mixed_rw       n=4000   total_ms=1034.7    avg_us=258.7    p50=3.7     p95=1032.9   p99=1163.7   max_us=9553.7    qps=3866
+RANDQ mem mixed_rw       rss_mb=87 peak_mb=89 vsz_mb=106
+RANDQ count_all      n=64     total_ms=3.1       avg_us=47.9     p50=45.5    p95=49.9     p99=191.7    max_us=191.7     qps=20889
+RANDQ mem count_all      rss_mb=88 peak_mb=89 vsz_mb=106
+RANDQ flush_ms=22.8
+RANDQ peak_rss_mb=90 data_dir_mb=25
+RANDQ reopen_ms=19 count_db0_t0=50000
+RANDQ OK

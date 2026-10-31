@@ -1,0 +1,9 @@
+CONC phase n=1   conns=1 conn_err=0 ops=65536 wall=2.43s qps=26998 avg_us=36.2 q_err=0 per_conn_qps=26998
+CONC phase n=2   conns=2 conn_err=0 ops=82624 wall=3.01s qps=27475 avg_us=72.0 q_err=0 per_conn_qps=13738
+CONC phase n=4   conns=4 conn_err=0 ops=83008 wall=3.01s qps=27570 avg_us=144.2 q_err=0 per_conn_qps=6892
+CONC phase n=8   conns=8 conn_err=0 ops=86720 wall=3.02s qps=28732 avg_us=277.3 q_err=0 per_conn_qps=3592
+CONC phase n=16  conns=16 conn_err=0 ops=86144 wall=3.02s qps=28498 avg_us=559.1 q_err=0 per_conn_qps=1781
+CONC phase n=32  conns=32 conn_err=0 ops=80832 wall=3.04s qps=26578 avg_us=1196.2 q_err=0 per_conn_qps=831
+CONC conn_error OperationalError(2013, 'Lost connection to MySQL server during query')
+CONC phase n=64  conns=55 conn_err=9 ops=73472 wall=3.07s qps=23905 avg_us=2275.1 q_err=0 per_conn_qps=435
+CONC client_done phases_ok=7
