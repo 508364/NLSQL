@@ -127,6 +127,8 @@ typedef struct nlsql_open_opts {
     const char* data_dir;      /* 数据目录（相对/绝对路径均可，内部做净化） */
     const char* user;          /* 本地访问口令门控，可 NULL */
     const char* password;      /* 可 NULL */
+    const char* auth_file;     /* 凭据文件路径，可 NULL；格式见 nlsql_load_auth_file() */
+    int         require_auth;  /* 1 = 强制认证：未配置凭据时也拒绝查询/连接 */
     int         readonly;      /* 1 = 只读模式（拒绝写语句与 DDL） */
     int         workers;       /* 异步工作线程数，0 = 默认（1，低占用） */
     int         journal_mb;    /* WAL 压实阈值（MB），0 = 默认 64 */
@@ -160,6 +162,19 @@ const char* nlsql_global_error(void);
 int nlsql_set_credentials(nlsql_conn_t* conn, const char* user, const char* password);
 /** 按已设置凭据校验（user/password 不匹配返回 NLSQL_ER_ACCESS_DENIED）。 */
 int nlsql_authenticate(nlsql_conn_t* conn, const char* user, const char* password);
+
+/**
+ * 从文件加载凭据（覆盖已设置的凭据）。便于把口令从代码/命令行参数移出。
+ * 文件为纯文本，每行一条，支持 `key=value` 与 `user:password` 单行形式：
+ *
+ *     # 注释行
+ *     user=app
+ *     password=secret123
+ *
+ * 未知键忽略；缺少 `user` 返回错误。空密码（`password=`）合法。
+ * @return NLSQL_OK / NLSQL_ERR_IO（文件不可读）/ NLSQL_ERR（内容缺 user）
+ */
+int nlsql_load_auth_file(nlsql_conn_t* conn, const char* path);
 
 /** 强制将 WAL 压实为快照并落盘（同步等待后台压实完成；close 不再自动做）。 */
 int nlsql_flush(nlsql_conn_t* conn);

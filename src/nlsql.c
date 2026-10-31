@@ -45,12 +45,25 @@ nlsql_conn_t* nlsql_open_ex(const nlsql_open_opts_t* opts) {
     pthread_cond_init(&c->flush_cv, NULL);
 #endif
     c->readonly = opts->readonly ? 1 : 0;
+    c->require_auth = opts->require_auth ? 1 : 0;
     int af = opts->auto_flush_ms;
     if (af == 0) af = 5000;              /* 0 = 默认 5 秒 */
     c->auto_flush_ms = (af > 0 && !c->readonly) ? af : 0;
     int rc = eng_open(&c->eng, opts->data_dir, (uint32_t)opts->journal_mb, c->readonly);
     if (rc != NLSQL_OK) {
         nlsql_set_global_err("cannot open data dir: %s (%d)", opts->data_dir, rc);
+        frw_destroy(&c->frw);
+        pthread_mutex_destroy(&c->err_mtx);
+        pthread_mutex_destroy(&c->flush_mtx);
+        pthread_cond_destroy(&c->flush_cv);
+        free(c);
+        return NULL;
+    }
+    /* 凭据文件：读取失败即打开失败（配置了就必须生效，避免静默退化为无认证） */
+    if (opts->auth_file && opts->auth_file[0] &&
+        nlsql_load_auth_file(c, opts->auth_file) != NLSQL_OK) {
+        nlsql_set_global_err("cannot load auth file: %s (%s)", opts->auth_file, nlsql_error(c));
+        eng_close(&c->eng);
         frw_destroy(&c->frw);
         pthread_mutex_destroy(&c->err_mtx);
         pthread_mutex_destroy(&c->flush_mtx);
@@ -152,9 +165,14 @@ int nlsql_authenticate(nlsql_conn_t* conn, const char* user, const char* passwor
     if (!conn) return NLSQL_ERR;
     frw_acquire(&conn->frw, FRW_EXCL);
     if (!conn->have_creds) {
-        conn->authenticated = 1; /* 未设置凭据 = 本地直连放行 */
+        /* 强制认证模式下未配置凭据也拒绝，避免误以为已启用口令 */
+        int ok = !conn->require_auth;
+        conn->authenticated = ok;
+        if (!ok)
+            nlsql_set_err(conn, NLSQL_ER_ACCESS_DENIED, "28000",
+                          "Authentication required but no credentials configured");
         frw_release(&conn->frw, FRW_EXCL);
-        return NLSQL_OK;
+        return ok ? NLSQL_OK : NLSQL_ER_ACCESS_DENIED;
     }
     uint8_t pass_buf[256];
     const char* pw = password ? password : "";
@@ -172,6 +190,65 @@ int nlsql_authenticate(nlsql_conn_t* conn, const char* user, const char* passwor
                       "Access denied for user '%s'", user ? user : "(null)");
     frw_release(&conn->frw, FRW_EXCL);
     return ok ? NLSQL_OK : NLSQL_ER_ACCESS_DENIED;
+}
+
+int nlsql_load_auth_file(nlsql_conn_t* conn, const char* path) {
+    if (!conn || !path || !path[0]) return NLSQL_ERR;
+    FILE* fp = fopen(path, "r");
+    if (!fp) {
+        nlsql_set_err(conn, NLSQL_ERR_IO, "HY000", "cannot open auth file: %s", path);
+        return NLSQL_ERR_IO;
+    }
+    char user[NLSQL_MAX_IDENT + 1] = {0};
+    char pass[256] = {0};
+    int have_user = 0;
+    char line[512];
+    while (fgets(line, sizeof(line), fp)) {
+        char* s = line;
+        while (*s == ' ' || *s == '\t') s++;
+        if (*s == '\0' || *s == '\n' || *s == '\r' || *s == '#') continue;
+        char* e = s + strlen(s);
+        while (e > s && (e[-1] == '\n' || e[-1] == '\r')) e--;
+        *e = '\0';
+        char* sep = strchr(s, '=');
+        if (!sep) {
+            /* 单行 user:password 形式（仅首个冒号作分隔，口令可含冒号） */
+            sep = strchr(s, ':');
+            if (sep && !have_user) {
+                *sep = '\0';
+                size_t ul = strlen(s);
+                if (ul > NLSQL_MAX_IDENT) ul = NLSQL_MAX_IDENT;
+                memcpy(user, s, ul); user[ul] = '\0';
+                snprintf(pass, sizeof(pass), "%s", sep + 1);
+                have_user = 1;
+            }
+            continue;
+        }
+        *sep = '\0';
+        char* ke = s + strlen(s);
+        while (ke > s && (ke[-1] == ' ' || ke[-1] == '\t')) *--ke = '\0';
+        char* v = sep + 1;
+        while (*v == ' ' || *v == '\t') v++;
+        if (strcmp(s, "user") == 0 || strcmp(s, "username") == 0) {
+            size_t ul = strlen(v);
+            if (ul > NLSQL_MAX_IDENT) ul = NLSQL_MAX_IDENT;
+            memcpy(user, v, ul); user[ul] = '\0';
+            have_user = 1;
+        } else if (strcmp(s, "password") == 0 || strcmp(s, "pass") == 0) {
+            snprintf(pass, sizeof(pass), "%s", v);
+        } /* 未知键忽略，便于同一文件存放其他配置 */
+    }
+    fclose(fp);
+    if (!have_user) {
+        memset(pass, 0, sizeof(pass));
+        nlsql_set_err(conn, NLSQL_ERR, "HY000", "auth file missing 'user': %s", path);
+        return NLSQL_ERR;
+    }
+    int rc = nlsql_set_credentials(conn, user, pass);
+    memset(pass, 0, sizeof(pass)); /* 口令不留在栈上 */
+    if (rc != NLSQL_OK)
+        nlsql_set_err(conn, NLSQL_ERR, "HY000", "invalid user in auth file: %s", path);
+    return rc;
 }
 
 int nlsql_flush(nlsql_conn_t* conn) {
@@ -198,7 +275,7 @@ int nlsql_flush(nlsql_conn_t* conn) {
  * ========================================= */
 
 static int auth_gate(nlsql_conn_t* c) {
-    if (c->have_creds && !c->authenticated) {
+    if ((c->have_creds || c->require_auth) && !c->authenticated) {
         nlsql_set_err(c, NLSQL_ER_ACCESS_DENIED, "28000",
                       "Not authenticated for this session");
         return NLSQL_ER_ACCESS_DENIED;

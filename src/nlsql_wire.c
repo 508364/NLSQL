@@ -666,7 +666,9 @@ static int do_handshake(wire_srv_t* srv, nlio_t* io, uint8_t* seq) {
     /* 校验 */
     frw_acquire(&c->frw, FRW_EXCL);
     int accepted;
-    if (!c->have_creds) {
+    if (c->require_auth && !c->have_creds) {
+        accepted = 0; /* 强制认证但服务端无凭据：一律拒绝，避免空密码直连 */
+    } else if (!c->have_creds) {
         if (!have_token) {
             accepted = 1; /* 空密码客户端（如 PyMySQL）不发 token，未配置凭据即放行 */
         } else {

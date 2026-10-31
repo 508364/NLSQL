@@ -720,6 +720,74 @@ static void test_auto_flush(void) {
     nlsql_close(c);
 }
 
+/* ---------- 凭据控制：参数 / 文件 / 强制认证 ---------- */
+static void test_auth(void) {
+    char conf[256];
+    snprintf(conf, sizeof(conf), "/tmp/nlsql_authconf_%d.conf", (int)getpid());
+    FILE* f = fopen(conf, "w");
+    CHECK(f != NULL, "write auth file");
+    if (!f) return;
+    fputs("# credentials for test\nuser=app\npassword=secret123\n", f);
+    fclose(f);
+
+    nlsql_open_opts_t o;
+    make_dir("auth");
+    memset(&o, 0, sizeof(o));
+    o.data_dir = g_dir;
+    o.auth_file = conf;
+    o.require_auth = 1;
+    nlsql_conn_t* c = nlsql_open_ex(&o);
+    CHECK(c != NULL, "open with auth file");
+    if (c) {
+        nlsql_result_t* r = NULL;
+        CHECK(nlsql_query(c, "SELECT 1", &r) == NLSQL_ER_ACCESS_DENIED, "auth file gate before login");
+        nlsql_free_result(r); r = NULL;
+        CHECK(nlsql_authenticate(c, "app", "wrong") == NLSQL_ER_ACCESS_DENIED, "auth file wrong password");
+        CHECK(nlsql_authenticate(c, "other", "secret123") == NLSQL_ER_ACCESS_DENIED, "auth file wrong user");
+        CHECK(nlsql_authenticate(c, "app", "secret123") == NLSQL_OK, "auth file correct");
+        CHECK(nlsql_query(c, "SELECT 1", &r) == NLSQL_OK && r && r->row_count == 1, "query after auth file login");
+        nlsql_free_result(r);
+        nlsql_close(c);
+    }
+
+    /* 参数方式：require_auth 但未配置凭据 → 仍拒绝（不静默放行） */
+    make_dir("auth_force");
+    memset(&o, 0, sizeof(o));
+    o.data_dir = g_dir;
+    o.require_auth = 1;
+    c = nlsql_open_ex(&o);
+    CHECK(c != NULL, "open require_auth without creds");
+    if (c) {
+        CHECK(nlsql_query(c, "SELECT 1", NULL) == NLSQL_ER_ACCESS_DENIED, "require_auth denies without creds");
+        CHECK(nlsql_authenticate(c, "root", "") == NLSQL_ER_ACCESS_DENIED, "require_auth auth denied");
+        nlsql_close(c);
+    }
+
+    /* 参数方式：直接传 user/password，配置即生效 */
+    make_dir("auth_opts");
+    memset(&o, 0, sizeof(o));
+    o.data_dir = g_dir;
+    o.user = "svc";
+    o.password = "pw";
+    c = nlsql_open_ex(&o);
+    CHECK(c != NULL, "open with user/password opts");
+    if (c) {
+        CHECK(nlsql_query(c, "SELECT 1", NULL) == NLSQL_ER_ACCESS_DENIED, "opts creds gate queries");
+        CHECK(nlsql_authenticate(c, "svc", "pw") == NLSQL_OK, "opts creds authenticate");
+        CHECK(nlsql_query(c, "SELECT 1", NULL) == NLSQL_OK, "query after opts auth");
+        nlsql_close(c);
+    }
+
+    /* 指定了凭据文件但不可读 → 打开失败，避免静默退化为无认证 */
+    make_dir("auth_missing");
+    memset(&o, 0, sizeof(o));
+    o.data_dir = g_dir;
+    o.auth_file = "/nonexistent/nlsql_auth.conf";
+    CHECK(nlsql_open_ex(&o) == NULL, "missing auth file fails open");
+
+    remove(conf);
+}
+
 static void test_ext_meta(void) {
     make_dir("extmeta");
     nlsql_conn_t* c = nlsql_open(g_dir);
@@ -791,6 +859,7 @@ int main(void) {
     test_errcodes();
     test_metadata();
     test_if_exists();
+    test_auth();
     test_ext_meta();
     test_auto_flush();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);

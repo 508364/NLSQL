@@ -464,6 +464,7 @@ struct nlsql_conn {
     int  have_creds;
     char creds_user[65];
     uint8_t creds_sha[20];   /* SHA1(SHA1(pass)) 存储，不落明文 */
+    int  require_auth;       /* 1 = 未配置凭据也拒绝（强制认证） */
 
     int  authenticated;
     int  readonly;
